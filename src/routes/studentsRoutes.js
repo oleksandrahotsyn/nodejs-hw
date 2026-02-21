@@ -6,16 +6,19 @@ import {
   updateStudentSchema,
 } from '../validations/studentsValidation.js';
 import {
+  getStudents,
   getStudentById,
   deleteStudent,
   updateStudent,
 } from '../controllers/studentsController.js';
 
 import { studentIdParamSchema } from '../validations/studentsValidation.js';
-
+import { getStudentsSchema } from '../validations/studentsValidation.js';
 const router = Router();
 
+router.get('/students', celebrate(getStudentsSchema), getStudents);
 router.post('/students', celebrate(createStudentSchema), createStudent);
+
 router.get(
   '/students/:studentId',
   celebrate(studentIdParamSchema),
