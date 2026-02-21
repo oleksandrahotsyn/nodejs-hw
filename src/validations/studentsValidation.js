@@ -1,4 +1,17 @@
 import { Joi, Segments } from 'celebrate';
+import { isValidObjectId } from 'mongoose';
+
+// Кастомний валідатор для ObjectId
+const objectIdValidator = (value, helpers) => {
+  return !isValidObjectId(value) ? helpers.message('Invalid id format') : value;
+};
+
+// Схема для перевірки параметра studentId
+export const studentIdParamSchema = {
+  [Segments.PARAMS]: Joi.object({
+    studentId: Joi.string().custom(objectIdValidator).required(),
+  }),
+};
 
 export const createStudentSchema = {
   [Segments.BODY]: Joi.object({
