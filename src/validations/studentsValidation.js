@@ -62,5 +62,6 @@ export const getStudentsSchema = {
     perPage: Joi.number().integer().min(5).max(20),
     gender: Joi.string().valid('male', 'female', 'other'),
     minAvgMark: Joi.number().positive(),
+    search: Joi.string().trim().allow(''),
   }),
 };
