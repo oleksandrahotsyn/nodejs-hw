@@ -3,19 +3,24 @@ import { Student } from '../models/student.js';
 
 // Отримати список усіх студентів
 export const getStudents = async (req, res) => {
-  const { page = 1, perPage = 10 } = req.query;
+  const { page = 1, perPage = 10, gender, minAvgMark } = req.query;
   const skip = (page - 1) * perPage;
 
-  // Створюємо базовий запит до колекції
   const studentsQuery = Student.find();
 
-  // Виконуємо одразу два запити паралельно
+  // Будуємо фільтр
+  if (gender) {
+    studentsQuery.where('gender').equals(gender);
+  }
+  if (minAvgMark) {
+    studentsQuery.where('avgMark').gte(minAvgMark);
+  }
+
   const [totalItems, students] = await Promise.all([
     studentsQuery.clone().countDocuments(),
     studentsQuery.skip(skip).limit(perPage),
   ]);
 
-  // Обчислюємо загальну кількість «сторінок»
   const totalPages = Math.ceil(totalItems / perPage);
 
   res.status(200).json({
