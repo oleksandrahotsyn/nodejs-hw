@@ -23,11 +23,6 @@ export const getAllNotes = async (req, res) => {
 
   const skip = (page - 1) * perPage;
 
-  //  тільки "мої" нотатки
-  const totalNotes = await Note.countDocuments(filter);
-  const totalPages = Math.ceil(totalNotes / perPage) || 1;
-
-  // тільки "мої" нотатки
   const findQuery = Note.find(filter).skip(skip).limit(perPage);
 
   const hasTextSearch = !!filter.$text;
@@ -39,7 +34,12 @@ export const getAllNotes = async (req, res) => {
     findQuery.sort({ createdAt: -1 });
   }
 
-  const notes = await findQuery.exec();
+  const [totalNotes, notes] = await Promise.all([
+    Note.countDocuments(filter),
+    findQuery.exec(),
+  ]);
+
+  const totalPages = Math.ceil(totalNotes / perPage) || 1;
 
   res.status(200).json({
     page,
@@ -54,7 +54,7 @@ export const getAllNotes = async (req, res) => {
 export const getNoteById = async (req, res) => {
   const { noteId } = req.params;
   const note = await Note.findOne({
-    id: noteId,
+    _id: noteId,
     userId: req.user._id,
    });
 
