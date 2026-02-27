@@ -6,37 +6,32 @@ export const getAllNotes = async (req, res) => {
 
   const page = Number(req.query.page ?? 1);
   const perPage = Number(req.query.perPage ?? 10);
-
-  // тільки нотатки поточного користувача
-  const filter = { userId: req.user._id };
-
-  if (tag) {
-    filter.tag = tag;
-  }
-
-  if (search !== undefined) {
-    const trimmed = String(search).trim();
-    if (trimmed.length > 0) {
-      filter.$text = { $search: trimmed };
-    }
-  }
-
   const skip = (page - 1) * perPage;
 
-  const findQuery = Note.find(filter).skip(skip).limit(perPage);
+  const notesQuery = Note.find({ userId: req.user._id });
 
-  const hasTextSearch = !!filter.$text;
+  if (tag) {
+    notesQuery.where('tag').equals(tag);
+  }
+
+  const trimmedSearch = search !== undefined ? String(search).trim() : '';
+  const hasTextSearch = trimmedSearch.length > 0;
+
   if (hasTextSearch) {
-    findQuery
+    notesQuery.where({ $text: { $search: trimmedSearch } });
+    notesQuery
       .select({ score: { $meta: 'textScore' } })
       .sort({ score: { $meta: 'textScore' } });
   } else {
-    findQuery.sort({ createdAt: -1 });
+    notesQuery.sort({ createdAt: -1 });
   }
 
+  notesQuery.skip(skip).limit(perPage);
+
+  // Promise.all: count + find одночасно
   const [totalNotes, notes] = await Promise.all([
-    Note.countDocuments(filter),
-    findQuery.exec(),
+    Note.countDocuments(notesQuery.getFilter()),
+    notesQuery.exec(),
   ]);
 
   const totalPages = Math.ceil(totalNotes / perPage) || 1;
