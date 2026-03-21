@@ -3,7 +3,7 @@ import { celebrate } from 'celebrate';
 import { loginUser, logoutUser, refreshUserSession, registerUser, requestResetEmail } from '../controllers/authController.js';
 import {
   loginUserSchema,
-  registerUserSchema,
+  registerUserSchema, requestResetEmailSchema,
 } from '../validations/authValidation.js';
 
 const router = Router();

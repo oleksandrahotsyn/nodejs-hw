@@ -10,6 +10,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
 import cookieParser from "cookie-parser";
+import 'dotenv/config';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -30,6 +31,13 @@ app.use(errors());
 app.use(errorHandler);
 
 await connectMongoDB();
+console.log('ENV CHECK:', {
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD ? 'OK' : 'MISSING',
+  BREVO_API_KEY: process.env.BREVO_API_KEY ? 'OK' : 'MISSING',
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
