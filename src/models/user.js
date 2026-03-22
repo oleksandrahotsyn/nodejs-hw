@@ -15,6 +15,13 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+userSchema.pre('save', function (next) {
+  if (!this.username) {
+    this.username = this.email;
+  }
+  next();
+});
+
 // Перевизначаємо метод toJSON
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
